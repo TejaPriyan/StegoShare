@@ -1,0 +1,47 @@
+# STEGOSHARE Complete Technical Documentation (LLMs Full Reference)
+
+## 1. System Overview
+STEGOSHARE is an advanced two-way client-side image steganography and cryptography application. It allows secure, unnoticeable embedding of messages and files into digital images without changing their visual appearance or raising suspicion.
+
+### 1.1 Guiding Principles
+- Zero-Knowledge Security: All encryption and decryption occurs purely in user memory via Web Crypto API (SubtleCrypto) and pure JS cryptographic fallbacks.
+- Lossless Delivery: Pixel data is exported in standard W3C PNG format to preserve discrete LSB values.
+- Lossy Armor Mode: For delivery channels that compress images (WhatsApp, Instagram, Twitter/X), an 8x8 block discrete cosine transform (DCT) luminance modulation mode embeds redundant bit markers that withstand 75% quality JPEG recompression.
+- Integrity First: CRC32 checksums ensure corrupted images or incorrect decryption passwords are detected before attempting to present garbage data.
+
+## 2. Technical Architecture & Algorithms
+
+### 2.1 Least Significant Bit (1-LSB) RGB Steganography
+- Carrier capacity formula:
+  Capacity (Bytes) = floor((Width * Height * 3) / 8)
+- 3 bits stored per pixel: 1 bit in Red channel, 1 bit in Green channel, 1 bit in Blue channel.
+- Alpha channel (opacity) is left strictly unchanged (255) to prevent browser alpha pre-multiplication artifacts.
+- Maximum channel deviation is ±1 out of 255.
+- Metrics:
+  - PSNR: Peak Signal to Noise Ratio > 51.0 dB (anything above 40 dB is visually identical).
+  - SSIM: Structural Similarity Index > 0.9999 (1.0 = identical).
+  - Visual Difference Map: 50x amplified color delta canvas highlights exactly which pixels carry hidden data.
+
+### 2.2 Authenticated Encryption Engine
+- Key Derivation: PBKDF2 with HMAC-SHA-256, 100,000 iterations, 16-byte random salt.
+- Cipher: AES-256-GCM (Galois/Counter Mode).
+  - 12-byte cryptographically random Nonce/IV per encryption operation.
+  - 128-bit (16-byte) GCM authentication tag appended to the ciphertext.
+  - Authenticates both ciphertext integrity and payload boundaries.
+
+### 2.3 Verification & Quality Assurance
+The application features a built-in automated test suite (Tests 1 through 10) running directly in the browser:
+1. Magic Header & Spec V1 Packet Serialization
+2. Direct 1-LSB Pixel Roundtrip Fidelity
+3. AES-256-GCM + PBKDF2 Web Crypto Decryption
+4. Password Rejection with Invalid Key
+5. Unicode, Emojis & Multi-Language UTF-8 byte integrity
+6. Over-Capacity Graceful Rejection
+7. Lossless PNG Export & Canvas Re-upload Roundtrip
+8. Tampered Payload CRC32 Detection
+9. Lossy JPEG Destruction Guard (1-LSB)
+10. Social-Safe 8x8 DCT JPEG Survival under 75% re-compression
+
+## 3. Deployment & Production Setup
+- Built with Vite, TypeScript, and Tailwind CSS.
+- Completely static: can be hosted on GitHub Pages, Cloudflare Pages, Vercel, Netlify, or run locally from any static file server.

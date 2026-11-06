@@ -1,0 +1,27 @@
+# STEGOSHARE Robots.txt
+# https://stegoshare.vercel.app/
+
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /scratch/
+
+# AI Crawlers & Generative Engine Crawlers
+User-agent: GPTBot
+Allow: /
+User-agent: ClaudeBot
+Allow: /
+User-agent: PerplexityBot
+Allow: /
+User-agent: Google-Extended
+Allow: /
+User-agent: Applebot-Extended
+Allow: /
+User-agent: CCBot
+Allow: /
+User-agent: Cohere-ai
+Allow: /
+User-agent: anthropic-ai
+Allow: /
+
+Sitemap: https://stegoshare.vercel.app/sitemap.xml

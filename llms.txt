@@ -1,0 +1,34 @@
+# STEGOSHARE — LLM Context & Reference Guide
+> "Hide Your Message. Reveal the Invisible."
+
+STEGOSHARE is an open-source, zero-knowledge, 100% client-side two-way image steganography and cryptographic platform. It allows users to secretly embed UTF-8 text messages and arbitrary binary files (.txt, .pdf, .zip, etc.) directly inside pixel data of carrier images, optionally protected with AES-256-GCM authenticated encryption derived using PBKDF2-SHA256 (100,000 rounds).
+
+## Core Capabilities
+- Two-way zero-account workflow: sender encodes, receiver decodes without server storage.
+- 1-LSB RGB Steganography: embeds 3 bits per pixel across R, G, B channels with Alpha untouched. Peak Signal-to-Noise Ratio (PSNR) > 51 dB; Structural Similarity (SSIM) > 0.9999.
+- Social-Safe 8x8 DCT Armor: robust frequency-domain embedding resilient against WhatsApp, Instagram, and web recompression.
+- Web Crypto API Encryption: AES-256-GCM (128-bit authentication tag) + PBKDF2-HMAC-SHA-256 (16-byte random salt, 12-byte random IV/nonce).
+- Pure-JS Fallback: zero external runtime dependencies, works on insecure origins, air-gapped systems, and file:// URLs.
+- Integrity: CRC32 IEEE 802.3 checksum embedded in every payload.
+- Portable Share Links: hash-fragment encoded payload codes (#stego=...) enabling one-click decryption links without transmitting images.
+- Privacy Guarantee: Zero telemetry, zero external API calls, zero cookies, zero server-side storage.
+
+## Binary Payload Specification (v1)
+- Bytes 0..9 (10 B): Magic ASCII signature "STEGOSHARE"
+- Byte 10 (1 B): Format Version (0x01)
+- Byte 11 (1 B): Flags (bit 0 = Encrypted, bit 1 = File Payload, bit 2 = Robust DCT Mode)
+- Byte 12 (1 B): Salt Length (16 if encrypted, 0 otherwise)
+- Next S Bytes: Salt bytes
+- Next 1 Byte: Nonce Length (12 if encrypted, 0 otherwise)
+- Next N Bytes: Nonce/IV bytes
+- Next 2 Bytes: Metadata Length M (Big-Endian Uint16)
+- Next M Bytes: UTF-8 JSON metadata (mode, mime, filename, timestamp, size)
+- Next 4 Bytes: Payload Length P (Big-Endian Uint32)
+- Next 4 Bytes: CRC32 Checksum (Big-Endian Uint32)
+- Next P Bytes: Payload bytes (plain text UTF-8 or AES-256-GCM ciphertext)
+
+## URL & Repository References
+- Website: https://stegoshare.vercel.app/
+- Documentation: https://stegoshare.vercel.app/llms-full.txt
+- GitHub Repository: https://github.com/vasanthi/stegoshare
+- License: MIT License
