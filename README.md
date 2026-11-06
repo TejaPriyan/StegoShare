@@ -2,7 +2,7 @@
 ### Advanced Two-Way Browser-Only Cryptographic Steganography Platform
 
 <p align="center">
-  <a href="https://github.com/vasanthi/stegoshare/actions/workflows/ci.yml">
+  <a href="https://github.com/TejaPriyan/StegoShare/actions/workflows/ci.yml">
     <img src="https://img.shields.io/badge/CI-Passing-00FF88?style=for-the-badge&logo=github-actions&logoColor=black" alt="CI Status" />
   </a>
   <a href="./LICENSE">
@@ -93,7 +93,7 @@ Every STEGOSHARE packet embedded into pixel bits follows this deterministic bina
 ### Installation
 ```bash
 # Clone the repository
-git clone https://github.com/vasanthi/stegoshare.git
+git clone https://github.com/TejaPriyan/StegoShare.git
 cd stegoshare
 
 # Install dependencies
@@ -122,7 +122,7 @@ npm run preview
 STEGOSHARE maintains 100% passing automated test coverage across all cryptographic and steganographic routines:
 
 ```
- RUN  v1.6.1 C:/Users/vasanthi/Downloads/stegoshare-fixed
+ RUN  v1.6.1 stegoshare
 
  ✓ src/tests/stego.test.ts (10 tests)
    ✓ 1. computes CRC32 IEEE 802.3 standard test vector

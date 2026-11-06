@@ -1,9 +1,19 @@
 {
   "name": "stegoshare",
-  "private": true,
+  "private": false,
   "version": "1.0.0",
   "description": "STEGOSHARE - Advanced Two-Way Image Steganography & AES-256-GCM Cryptography Platform",
   "type": "module",
+  "homepage": "https://github.com/TejaPriyan/StegoShare#readme",
+  "bugs": {
+    "url": "https://github.com/TejaPriyan/StegoShare/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TejaPriyan/StegoShare.git"
+  },
+  "author": "Teja Priyan <teja1616150@gmail.com>",
+  "license": "MIT",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
