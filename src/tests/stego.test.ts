@@ -223,6 +223,17 @@ describe('STEGOSHARE Complete Verification Suite', () => {
     }
   });
 
+  it('13b. fails closed when crypto.getRandomValues is unavailable', async () => {
+    try {
+      vi.stubGlobal('crypto', undefined);
+      await expect(
+        encryptPayload(new TextEncoder().encode('secret'), 'StrongPass#2026')
+      ).rejects.toThrow(/crypto\.getRandomValues/i);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
   it('14. encodes text-mode downloads via TextEncoder and formats file-mode metadata/previews', () => {
     const unicodeText = 'Zero-Knowledge Secret 🔐 UTF-8 ✓';
     const textBytes = new TextEncoder().encode(unicodeText);
