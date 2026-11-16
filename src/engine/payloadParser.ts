@@ -1,6 +1,7 @@
 import { SerializedHeaderInfo, StegoMetadata } from '../types/stego';
 import { MAGIC_SIGNATURE, FORMAT_VERSION } from './payloadSerializer';
 import { computeCRC32 } from '../utils/crc32';
+import { NONCE_LENGTH } from './cryptoEngine';
 
 export function parseStegoHeaderFromBytes(
   readBytesFn: (byteCount: number) => Uint8Array,
@@ -36,7 +37,7 @@ export function parseStegoHeaderFromBytes(
   const salt = buf2.slice(13, 13 + saltLen);
   const nonceLen = buf2[13 + saltLen];
 
-  if (nonceLen > 64) {
+  if (encrypted ? nonceLen !== NONCE_LENGTH : nonceLen !== 0) {
     throw new Error('Corrupted payload header: invalid nonce length.');
   }
 

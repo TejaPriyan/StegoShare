@@ -4,14 +4,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>STEGOSHARE — Two-Way Image Steganography &amp; AES-256-GCM Cryptography Platform</title>
-  <meta name="description" content="STEGOSHARE is an open-source, zero-knowledge client-side steganography platform. Hide and reveal encrypted secret messages inside images using 1-LSB, DCT social-safe armor, and authenticated AES-256-GCM encryption." />
+  <meta name="description" content="STEGOSHARE is an open-source, zero-knowledge client-side steganography platform. Hide and reveal encrypted secret messages inside images using 1-LSB, 8x8 Block social-safe armor, and authenticated AES-256-GCM encryption." />
   <meta name="keywords" content="steganography, image steganography, LSB steganography, AES-256-GCM, PBKDF2, cryptography, zero-knowledge, hide secret message in image, reveal hidden text in image, privacy, cyber security" />
   <meta name="author" content="STEGOSHARE" />
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
   <link rel="canonical" href="https://stegoshare.vercel.app/" />
   <meta name="theme-color" content="#050807" />
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2300FF88' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='11' width='18' height='11' rx='2' ry='2'%3E%3C/rect%3E%3Cpath d='M7 11V7a5 5 0 0 1 10 0v4'%3E%3C/path%3E%3C/svg%3E" />
-  <link rel="manifest" href="/site.webmanifest" />
+  <link rel="manifest" href="./site.webmanifest" />
 
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website" />
@@ -49,7 +49,7 @@
         },
         "featureList": [
           "1-LSB RGB Image Steganography",
-          "Social-Safe 8x8 DCT JPEG Resistance",
+          "Social-Safe 8x8 Block JPEG Resistance",
           "Authenticated AES-256-GCM Encryption",
           "PBKDF2-SHA256 100,000 Rounds Key Derivation",
           "Zero-Knowledge Client-Side Architecture",
@@ -111,7 +111,7 @@
             "name": "Does WhatsApp or Instagram compress steganography images?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Yes, messaging and social platforms recompress images into lossy JPEG. For standard 1-LSB images, send them as uncompressed 'Documents' or 'Files'. For compressed channels, use STEGOSHARE's Social-Safe DCT mode, which survives 75% quality JPEG compression."
+              "text": "Yes, messaging and social platforms recompress images into lossy JPEG. For standard 1-LSB images, send them as uncompressed 'Documents' or 'Files'. For compressed channels, use STEGOSHARE's Social-Safe 8x8 Block mode, which survives 75% quality JPEG compression."
             }
           },
           {
@@ -789,7 +789,7 @@
                 class="text-left p-3.5 rounded-xl border border-white/10 bg-[#070D0B] hover:border-emerald-500/40 transition-all space-y-1"
               >
                 <div class="flex items-center justify-between">
-                  <span class="text-xs font-bold text-white font-mono">Social-Safe 8&times;8 DCT Armor</span>
+                  <span class="text-xs font-bold text-white font-mono">Social-Safe 8&times;8 Block Armor</span>
                   <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/20 text-amber-300">Survives JPEG</span>
                 </div>
                 <p class="text-[11px] text-slate-300 leading-relaxed">
@@ -1557,7 +1557,7 @@ npx vercel --prod</pre>
         <span>&bull;</span>
         <a href="https://github.com/vasanthi/stegoshare" target="_blank" rel="noopener noreferrer" class="text-slate-300 hover:text-emerald-400 transition-colors">GitHub Repository</a>
         <span>&bull;</span>
-        <a href="/llms.txt" target="_blank" class="text-slate-300 hover:text-emerald-400 transition-colors">LLMs API Doc</a>
+        <a href="./llms.txt" target="_blank" class="text-slate-300 hover:text-emerald-400 transition-colors">LLMs API Doc</a>
       </div>
 
       <!-- Creator Support Button -->
@@ -1628,7 +1628,7 @@ npx vercel --prod</pre>
           <p>You agree to use STEGOSHARE strictly in compliance with all applicable laws and regulations. You may not use this tool to embed or distribute malware, illegal content, or infringe upon third-party intellectual property.</p>
 
           <h4 class="text-sm font-bold text-white uppercase tracking-wider font-mono">2. Lossless Carrier Requirement</h4>
-          <p>Standard 1-LSB steganography requires lossless transmission (e.g. sending files as unmodified documents in PNG format). Social media platforms like WhatsApp, Instagram, and Twitter recompress images into lossy JPEG, which destroys discrete 1-LSBs. For compressed channels, use the Social-Safe DCT mode.</p>
+          <p>Standard 1-LSB steganography requires lossless transmission (e.g. sending files as unmodified documents in PNG format). Social media platforms like WhatsApp, Instagram, and Twitter recompress images into lossy JPEG, which destroys discrete 1-LSBs. For compressed channels, use the Social-Safe 8&times;8 Block mode.</p>
 
           <h4 class="text-sm font-bold text-white uppercase tracking-wider font-mono">3. Disclaimer of Warranty &amp; Liability</h4>
           <p>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES, OR LIABILITY ARISING FROM USE OF THIS SOFTWARE.</p>
@@ -2027,6 +2027,9 @@ npx vercel --prod</pre>
         }
 
         function encryptGCM(keyBytes, ivBytes, plaintextBytes, aadBytes = new Uint8Array(0)) {
+          if (!ivBytes || ivBytes.length !== 12) {
+            throw new Error('Invalid AES-GCM nonce length: expected 12 bytes.');
+          }
           const w = keyExpansion256(keyBytes);
           const H = new Uint8Array(16);
           aesEncryptBlock(w, new Uint8Array(16), H);
@@ -2095,6 +2098,9 @@ npx vercel --prod</pre>
         }
 
         function decryptGCM(keyBytes, ivBytes, ciphertextWithTag, aadBytes = new Uint8Array(0)) {
+          if (!ivBytes || ivBytes.length !== 12) {
+            throw new Error('Invalid AES-GCM nonce length: expected 12 bytes.');
+          }
           if (ciphertextWithTag.length < 16) {
             throw new Error('Incorrect password. Unable to decrypt this message.');
           }
@@ -2206,20 +2212,11 @@ npx vercel --prod</pre>
       }
 
       async function encryptBytesAESGCM(plainBytes, password) {
-        const salt = (window.crypto && window.crypto.getRandomValues)
-          ? window.crypto.getRandomValues(new Uint8Array(SALT_LENGTH))
-          : (function () {
-              const b = new Uint8Array(SALT_LENGTH);
-              for (let i = 0; i < SALT_LENGTH; i++) b[i] = Math.floor(Math.random() * 256);
-              return b;
-            })();
-        const nonce = (window.crypto && window.crypto.getRandomValues)
-          ? window.crypto.getRandomValues(new Uint8Array(NONCE_LENGTH))
-          : (function () {
-              const b = new Uint8Array(NONCE_LENGTH);
-              for (let i = 0; i < NONCE_LENGTH; i++) b[i] = Math.floor(Math.random() * 256);
-              return b;
-            })();
+        if (typeof window === 'undefined' || !window.crypto || typeof window.crypto.getRandomValues !== 'function') {
+          throw new Error('Cryptographically secure random generator (window.crypto.getRandomValues) is unavailable.');
+        }
+        const salt = window.crypto.getRandomValues(new Uint8Array(SALT_LENGTH));
+        const nonce = window.crypto.getRandomValues(new Uint8Array(NONCE_LENGTH));
 
         if (window.crypto && window.crypto.subtle) {
           try {
@@ -2251,6 +2248,9 @@ npx vercel --prod</pre>
       }
 
       async function decryptBytesAESGCM(cipherBytes, password, salt, nonce) {
+        if (!nonce || nonce.length !== NONCE_LENGTH) {
+          throw new Error('Invalid AES-GCM nonce length: expected 12 bytes.');
+        }
         if (window.crypto && window.crypto.subtle) {
           try {
             const key = await deriveAES256Key(password, salt);
@@ -2412,7 +2412,7 @@ npx vercel --prod</pre>
         const totalBlocks = cols * rows;
         const totalBits = packetBytes.length * 8;
         if (totalBits * ROBUST_REPS > totalBlocks) {
-          throw new Error('Message too large for Social-Safe 8x8 DCT mode on this image. Use a shorter message or switch to 1-LSB Lossless mode.');
+          throw new Error('Message too large for Social-Safe 8x8 Block mode on this image. Use a shorter message or switch to 1-LSB Lossless mode.');
         }
 
         const out = new Uint8ClampedArray(sourcePixels);
@@ -2531,7 +2531,7 @@ npx vercel --prod</pre>
         const buf2 = extractFn(step2Len);
         const salt = buf2.slice(13, 13 + saltLen);
         const nonceLen = buf2[13 + saltLen];
-        if (nonceLen > 64) {
+        if (encrypted ? nonceLen !== NONCE_LENGTH : nonceLen !== 0) {
           throw new Error('Corrupted payload header: invalid nonce length.');
         }
 
@@ -2607,7 +2607,7 @@ npx vercel --prod</pre>
             return extractBytesFromPixels(pixels, n);
           }, maxLsbBytes, 'lsb');
         } catch (lsbErr) {
-          // If width and height are provided (or inferred), automatically check Social-Safe 8x8 DCT Armor!
+          // If width and height are provided (or inferred), automatically check Social-Safe 8x8 Block Armor!
           const totalPx = Math.floor(pixels.length / 4);
           const w = width || Math.round(Math.sqrt(totalPx));
           const h = height || Math.floor(totalPx / Math.max(1, w));
@@ -3188,7 +3188,7 @@ npx vercel --prod</pre>
         this.textContent = isPass ? 'HIDE' : 'SHOW';
       });
 
-      // Engine Mode Switcher (1-LSB vs Social-Safe 8x8 DCT Armor)
+      // Engine Mode Switcher (1-LSB vs Social-Safe 8x8 Block Armor)
       const engineModeLsbBtn = document.getElementById('engineModeLsbBtn');
       const engineModeRobustBtn = document.getElementById('engineModeRobustBtn');
       const stegoModeBadge = document.getElementById('stegoModeBadge');
@@ -3199,7 +3199,7 @@ npx vercel --prod</pre>
         if (mode === 'robust') {
           engineModeRobustBtn.className = 'text-left p-3.5 rounded-xl border-2 border-[#00FF88] bg-emerald-500/10 transition-all space-y-1';
           engineModeLsbBtn.className = 'text-left p-3.5 rounded-xl border border-white/10 bg-[#070D0B] hover:border-emerald-500/40 transition-all space-y-1';
-          stegoModeBadge.textContent = 'SOCIAL-SAFE 8x8 DCT ARMOR';
+          stegoModeBadge.textContent = 'SOCIAL-SAFE 8x8 BLOCK ARMOR';
           stegoModeBadge.className = 'px-2.5 py-1 rounded-full text-[11px] font-mono font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/40';
           socialSafeInfoBanner.classList.remove('hidden');
         } else {
@@ -3317,8 +3317,8 @@ npx vercel --prod</pre>
 
           document.getElementById('resDimensionText').textContent = state.carrierImage.width + ' × ' + state.carrierImage.height + ' px';
           document.getElementById('resPayloadSizeText').textContent = formatBytes(serialized.totalLen) + ' (' + (serialized.totalLen * 8).toLocaleString() + ' bits)';
-          document.getElementById('resCapacityUsedText').textContent = cap.capacityPercentage.toFixed(2) + (state.engineMode === 'robust' ? '% of 8x8 DCT Blocks' : '% of RGB LSBs');
-          document.getElementById('resMethodText').textContent = state.engineMode === 'robust' ? 'Social-Safe 8x8 DCT + 3x ECC' : 'RGB 1-LSB (Alpha Preserved)';
+          document.getElementById('resCapacityUsedText').textContent = cap.capacityPercentage.toFixed(2) + (state.engineMode === 'robust' ? '% of 8x8 Blocks' : '% of RGB LSBs');
+          document.getElementById('resMethodText').textContent = state.engineMode === 'robust' ? 'Social-Safe 8x8 Block + 3x ECC' : 'RGB 1-LSB (Alpha Preserved)';
           document.getElementById('portableShareInput').value = shareUrl;
           document.getElementById('resEncryptionStatusText').textContent = encrypted ? 'AES-256-GCM (PBKDF2 100K)' : 'Unencrypted (Plaintext UTF-8)';
           document.getElementById('resEncryptionStatusText').className = encrypted ? 'text-[#00FF88] font-semibold' : 'text-amber-300 font-semibold';
@@ -3417,12 +3417,12 @@ npx vercel --prod</pre>
         const w = state.encodedResult.width;
         const h = state.encodedResult.height;
 
-        // If user encoded in 1-LSB mode, automatically re-encode in Social-Safe 8x8 DCT mode first so they see it survive!
+        // If user encoded in 1-LSB mode, automatically re-encode in Social-Safe 8x8 Block mode first so they see it survive!
         if (state.encodedResult.engineMode !== 'robust') {
           try {
             testPixels = embedRobustPacketIntoPixels(state.carrierImage.pixels, state.encodedResult.packetBytes, w, h);
             setEngineMode('robust');
-            showToast('Upgraded carrier to Social-Safe 8x8 DCT Armor & simulating WhatsApp JPEG (Q=75%)...', 'success');
+            showToast('Upgraded carrier to Social-Safe 8x8 Block Armor & simulating WhatsApp JPEG (Q=75%)...', 'success');
           } catch (e) {
             showToast(e.message, 'error');
             return;
@@ -3638,7 +3638,7 @@ npx vercel --prod</pre>
           const h = parsed.header;
 
           document.getElementById('revDetectorBadge').textContent = h.engineType === 'robust'
-            ? 'SOCIAL-SAFE 8x8 DCT PAYLOAD FOUND'
+            ? 'SOCIAL-SAFE 8x8 BLOCK PAYLOAD FOUND'
             : 'STEGOSHARE PAYLOAD FOUND';
           document.getElementById('revDetectorBadge').className = 'px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold bg-emerald-500/20 text-[#00FF88] border border-emerald-500/40';
           document.getElementById('revSigValue').textContent = h.magic + ' ✓';
@@ -3935,7 +3935,7 @@ npx vercel --prod</pre>
         if (!grid) return;
 
         badge.textContent = 'Running 10 Tests...';
-        grid.innerHTML = '';
+        grid.replaceChildren();
 
         // Create a deterministic 120x120 test RGBA pixel buffer
         const W = 120, H = 120;
@@ -4149,7 +4149,7 @@ npx vercel --prod</pre>
           results.push({ id: 'TEST 9', name: 'Lossy JPEG Destruction Guard (1-LSB)', passed: false, detail: e.message });
         }
 
-        // TEST 10: Social-Safe 8x8 DCT Armor survives WhatsApp/Instagram JPEG compression (Q=75%)
+        // TEST 10: Social-Safe 8x8 Block Armor survives WhatsApp/Instagram JPEG compression (Q=75%)
         try {
           const W10 = 640, H10 = 480;
           const seedImg = document.getElementById('hiddenDemoCarrierImg');
@@ -4187,9 +4187,9 @@ npx vercel --prod</pre>
           });
           const dec10 = parseStegoFromPixels(jpegPx10, W10, H10);
           const out10 = new TextDecoder().decode(dec10.payloadBytes);
-          results.push({ id: 'TEST 10', name: 'Social-Safe 8x8 DCT JPEG Survival', passed: out10 === msg10, detail: 'Survived 75% JPEG re-compression intact' });
+          results.push({ id: 'TEST 10', name: 'Social-Safe 8x8 Block JPEG Survival', passed: out10 === msg10, detail: 'Survived 75% JPEG re-compression intact' });
         } catch (e) {
-          results.push({ id: 'TEST 10', name: 'Social-Safe 8x8 DCT JPEG Survival', passed: false, detail: e.message });
+          results.push({ id: 'TEST 10', name: 'Social-Safe 8x8 Block JPEG Survival', passed: false, detail: e.message });
         }
 
         // Render Test Cards
@@ -4202,13 +4202,32 @@ npx vercel --prod</pre>
         results.forEach(function (r) {
           const card = document.createElement('div');
           card.className = 'p-3.5 rounded-xl bg-[#070D0B] border ' + (r.passed ? 'border-emerald-500/30' : 'border-rose-500/40') + ' space-y-1';
-          card.innerHTML =
-            '<div class="flex items-center justify-between">' +
-              '<span class="font-bold text-white">' + r.id + '</span>' +
-              '<span class="px-2 py-0.5 rounded text-[10px] font-bold ' + (r.passed ? 'bg-emerald-500/20 text-[#00FF88]' : 'bg-rose-500/20 text-rose-300') + '">' + (r.passed ? 'PASS ✓' : 'FAIL ✗') + '</span>' +
-            '</div>' +
-            '<div class="text-slate-200 font-semibold">' + r.name + '</div>' +
-            '<div class="text-[11px] text-slate-400">' + r.detail + '</div>';
+
+          const headerRow = document.createElement('div');
+          headerRow.className = 'flex items-center justify-between';
+
+          const idSpan = document.createElement('span');
+          idSpan.className = 'font-bold text-white';
+          idSpan.textContent = r.id;
+
+          const statusSpan = document.createElement('span');
+          statusSpan.className = 'px-2 py-0.5 rounded text-[10px] font-bold ' + (r.passed ? 'bg-emerald-500/20 text-[#00FF88]' : 'bg-rose-500/20 text-rose-300');
+          statusSpan.textContent = r.passed ? 'PASS ✓' : 'FAIL ✗';
+
+          headerRow.appendChild(idSpan);
+          headerRow.appendChild(statusSpan);
+
+          const nameDiv = document.createElement('div');
+          nameDiv.className = 'text-slate-200 font-semibold';
+          nameDiv.textContent = r.name;
+
+          const detailDiv = document.createElement('div');
+          detailDiv.className = 'text-[11px] text-slate-400';
+          detailDiv.textContent = r.detail;
+
+          card.appendChild(headerRow);
+          card.appendChild(nameDiv);
+          card.appendChild(detailDiv);
           grid.appendChild(card);
         });
       }

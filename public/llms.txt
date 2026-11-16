@@ -6,7 +6,7 @@ STEGOSHARE is an open-source, zero-knowledge, 100% client-side two-way image ste
 ## Core Capabilities
 - Two-way zero-account workflow: sender encodes, receiver decodes without server storage.
 - 1-LSB RGB Steganography: embeds 3 bits per pixel across R, G, B channels with Alpha untouched. Peak Signal-to-Noise Ratio (PSNR) > 51 dB; Structural Similarity (SSIM) > 0.9999.
-- Social-Safe 8x8 DCT Armor: robust frequency-domain embedding resilient against WhatsApp, Instagram, and web recompression.
+- Social-Safe 8x8 Block Armor: robust 8x8 block luma quantization embedding resilient against WhatsApp, Instagram, and web recompression.
 - Web Crypto API Encryption: AES-256-GCM (128-bit authentication tag) + PBKDF2-HMAC-SHA-256 (16-byte random salt, 12-byte random IV/nonce).
 - Pure-JS Fallback: zero external runtime dependencies, works on insecure origins, air-gapped systems, and file:// URLs.
 - Integrity: CRC32 IEEE 802.3 checksum embedded in every payload.
@@ -16,7 +16,7 @@ STEGOSHARE is an open-source, zero-knowledge, 100% client-side two-way image ste
 ## Binary Payload Specification (v1)
 - Bytes 0..9 (10 B): Magic ASCII signature "STEGOSHARE"
 - Byte 10 (1 B): Format Version (0x01)
-- Byte 11 (1 B): Flags (bit 0 = Encrypted, bit 1 = File Payload, bit 2 = Robust DCT Mode)
+- Byte 11 (1 B): Flags (bit 0 = Encrypted, bit 1 = File Payload, bit 2 = Robust Block Mode)
 - Byte 12 (1 B): Salt Length (16 if encrypted, 0 otherwise)
 - Next S Bytes: Salt bytes
 - Next 1 Byte: Nonce Length (12 if encrypted, 0 otherwise)

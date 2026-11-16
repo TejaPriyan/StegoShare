@@ -354,6 +354,9 @@ function fastPbkdf2Sha256(passwordStr: string, saltBytes: Uint8Array, iterations
 }
 
 function encryptGCM(keyBytes: Uint8Array, ivBytes: Uint8Array, plaintextBytes: Uint8Array): Uint8Array {
+  if (!ivBytes || ivBytes.length !== NONCE_LENGTH) {
+    throw new Error('Invalid AES-GCM nonce length: expected 12 bytes.');
+  }
   const w = keyExpansion256(keyBytes);
   const H = new Uint8Array(16);
   aesEncryptBlock(w, new Uint8Array(16), H);
@@ -411,6 +414,9 @@ function encryptGCM(keyBytes: Uint8Array, ivBytes: Uint8Array, plaintextBytes: U
 }
 
 function decryptGCM(keyBytes: Uint8Array, ivBytes: Uint8Array, ciphertextWithTag: Uint8Array): Uint8Array {
+  if (!ivBytes || ivBytes.length !== NONCE_LENGTH) {
+    throw new Error('Invalid AES-GCM nonce length: expected 12 bytes.');
+  }
   if (ciphertextWithTag.length < 16) {
     throw new Error('Incorrect password. Unable to decrypt this message.');
   }
@@ -505,13 +511,19 @@ export async function deriveAESKey(password: string, salt: Uint8Array): Promise<
   return fastPbkdf2Sha256(password, salt, PBKDF2_ITERATIONS, 32);
 }
 
+export const PureCrypto = {
+  pbkdf2Sha256: fastPbkdf2Sha256,
+  encryptGCM,
+  decryptGCM,
+  sha256,
+};
+
 export async function encryptPayload(plaintext: Uint8Array, password: string): Promise<EncryptedBundle> {
-  const salt = (typeof crypto !== 'undefined' && crypto.getRandomValues)
-    ? crypto.getRandomValues(new Uint8Array(SALT_LENGTH))
-    : new Uint8Array(SALT_LENGTH).map(() => Math.floor(Math.random() * 256));
-  const nonce = (typeof crypto !== 'undefined' && crypto.getRandomValues)
-    ? crypto.getRandomValues(new Uint8Array(NONCE_LENGTH))
-    : new Uint8Array(NONCE_LENGTH).map(() => Math.floor(Math.random() * 256));
+  if (typeof crypto === 'undefined' || typeof crypto.getRandomValues !== 'function') {
+    throw new Error('Cryptographically secure random generator (crypto.getRandomValues) is unavailable.');
+  }
+  const salt = crypto.getRandomValues(new Uint8Array(SALT_LENGTH));
+  const nonce = crypto.getRandomValues(new Uint8Array(NONCE_LENGTH));
 
   if (typeof crypto !== 'undefined' && crypto.subtle) {
     try {
@@ -548,6 +560,9 @@ export async function decryptPayload(
   salt: Uint8Array,
   nonce: Uint8Array
 ): Promise<Uint8Array> {
+  if (!nonce || nonce.length !== NONCE_LENGTH) {
+    throw new Error('Invalid AES-GCM nonce length: expected 12 bytes.');
+  }
   if (typeof crypto !== 'undefined' && crypto.subtle) {
     try {
       const key = await deriveAESKey(password, salt);

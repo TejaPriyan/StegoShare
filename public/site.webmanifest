@@ -2,7 +2,7 @@
   "name": "STEGOSHARE — Advanced Image Steganography",
   "short_name": "STEGOSHARE",
   "description": "Two-Way Zero-Knowledge Image Steganography & AES-256-GCM Cryptography Platform",
-  "start_url": "/",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#050807",
   "theme_color": "#00FF88",

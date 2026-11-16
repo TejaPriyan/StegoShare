@@ -14,7 +14,7 @@ You agree to use STEGOSHARE strictly in compliance with all applicable local, na
 
 ## 3. Zero-Knowledge & Delivery Awareness
 - **Lossless Carrier Requirement**: Standard 1-LSB steganography requires lossless transmission (e.g. sending files as unmodified documents/attachments in `.png` format). Many messaging platforms and social networks compress images into lossy JPEG format, which alters discrete pixel LSBs.
-- **DCT Social-Safe Mode**: For channels with recompression, use the dedicated Social-Safe DCT mode.
+- **8x8 Block Social-Safe Mode**: For channels with recompression, use the dedicated Social-Safe 8x8 Block mode.
 - Users acknowledge responsibility for selecting the appropriate carrier mode and saving exported files losslessly.
 
 ## 4. No Warranty & Limitation of Liability

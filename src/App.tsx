@@ -15,6 +15,7 @@ import { embedPacketIntoPixels } from './engine/stegoEncoder';
 import { decodeStegoPixels } from './engine/stegoDecoder';
 import { computeImageQualityMetrics, buildAmplifiedDiffPixels } from './engine/imageProcessor';
 import { validateImageFile } from './engine/imageValidator';
+import { createRevealedDataState } from './utils/decodeHelpers';
 
 export default function App() {
   const session = useStegoSession();
@@ -186,8 +187,8 @@ export default function App() {
         nonce,
         metadata: {
           mode: session.payloadMode,
-          filename: session.secretFile ? session.secretFile.name : undefined,
-          mimeType: session.secretFile ? session.secretFile.mimeType : undefined,
+          filename: session.payloadMode === 'file' && session.secretFile ? session.secretFile.name : undefined,
+          mimeType: session.payloadMode === 'file' && session.secretFile ? session.secretFile.mimeType : undefined,
           timestamp: Date.now(),
           originalSize: rawBytes.length,
         },
@@ -278,33 +279,11 @@ export default function App() {
           session.setDetectedPacket({ header, payloadBytes: payload });
 
           if (!header.encrypted) {
-            // Immediately decode plaintext
-            if (header.isFile) {
-              session.setRevealedData({
-                mode: 'file',
-                text: '',
-                fileBytes: payload,
-                filename: header.metadata.filename || 'extracted_file.bin',
-                mimeType: header.metadata.mimeType || 'application/octet-stream',
-                encrypted: false,
-                payloadLength: payload.length,
-                timestamp: header.metadata.timestamp,
-              });
-            } else {
-              const text = new TextDecoder().decode(payload);
-              session.setRevealedData({
-                mode: 'text',
-                text,
-                fileBytes: new Uint8Array(0),
-                filename: '',
-                mimeType: 'text/plain',
-                encrypted: false,
-                payloadLength: payload.length,
-                timestamp: header.metadata.timestamp,
-              });
-            }
+            session.setRevealedData(createRevealedDataState(payload, header));
             showStatus('Stego message successfully extracted!', 'success');
           } else {
+            session.setRevealedData(null);
+            setRevealPassword('');
             showStatus('Encrypted Stego payload detected. Please enter decryption password.', 'info');
           }
         } catch (err: any) {
@@ -339,30 +318,7 @@ export default function App() {
         header.nonce
       );
 
-      if (header.isFile) {
-        session.setRevealedData({
-          mode: 'file',
-          text: '',
-          fileBytes: decryptedBytes,
-          filename: header.metadata.filename || 'decrypted_file.bin',
-          mimeType: header.metadata.mimeType || 'application/octet-stream',
-          encrypted: true,
-          payloadLength: decryptedBytes.length,
-          timestamp: header.metadata.timestamp,
-        });
-      } else {
-        const text = new TextDecoder().decode(decryptedBytes);
-        session.setRevealedData({
-          mode: 'text',
-          text,
-          fileBytes: new Uint8Array(0),
-          filename: '',
-          mimeType: 'text/plain',
-          encrypted: true,
-          payloadLength: decryptedBytes.length,
-          timestamp: header.metadata.timestamp,
-        });
-      }
+      session.setRevealedData(createRevealedDataState(decryptedBytes, header));
       showStatus('Decryption successful! Authenticated with AES-256-GCM.', 'success');
     } catch (err: any) {
       showStatus('Decryption failed: Incorrect password or corrupted payload.', 'error');
